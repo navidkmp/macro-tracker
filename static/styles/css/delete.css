@@ -1,0 +1,71 @@
+ * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #080d18;
+            color: #f1f5f9;
+        }
+
+        .delete-card {
+            background: #111a2b;
+            border: 1px solid #26364b;
+            border-radius: 22px;
+            box-shadow: 0 25px 70px rgba(0, 0, 0, .3);
+        }
+
+        .logo-box {
+            background: #a3e635;
+            color: #111827;
+        }
+
+        .warning-icon {
+            width: 76px;
+            height: 76px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(251, 113, 133, .1);
+            border: 1px solid rgba(251, 113, 133, .2);
+            border-radius: 22px;
+            color: #fb7185;
+            margin: 0 auto;
+        }
+
+        .delete-btn {
+            background: #fb7185;
+            color: #1f1015;
+            border: none;
+            border-radius: 11px;
+            padding: 14px 28px;
+            font-family: inherit;
+            font-size: 13px;
+            font-weight: 800;
+            cursor: pointer;
+            transition: .2s ease;
+        }
+
+        .delete-btn:hover {
+            background: #fda4af;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(251, 113, 133, .15);
+        }
+
+        .cancel-btn {
+            background: #1b2940;
+            color: #cbd5e1;
+            border: 1px solid #34445d;
+            border-radius: 11px;
+            padding: 14px 28px;
+            font-family: inherit;
+            font-size: 13px;
+            font-weight: 700;
+            text-decoration: none;
+            transition: .2s ease;
+        }
+
+        .cancel-btn:hover {
+            background: #26364b;
+            color: white;
+        }

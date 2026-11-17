@@ -1,0 +1,229 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Micro Tracker</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'styles/css/style.css' %}">
+</head>
+<body class="min-h-screen">
+<div class="max-w-7xl mx-auto px-5 py-8 md:px-8">
+    <!-- HEADER -->
+    <header class="flex flex-wrap items-center justify-between gap-4 mb-10">
+        <div class="flex items-center gap-3">
+            <div class="logo-box w-11 h-11 rounded-xl flex items-center justify-center text-xl font-extrabold">
+                M
+            </div>
+            <div>
+                <h1 class="text-xl font-extrabold tracking-tight">
+                    MICRO<span class="accent">TRACKER</span>
+                </h1>
+                <p class="text-xs muted mt-1">
+                    Nutrition Dashboard </p>
+            </div>
+        </div>
+        <div class="text-right">
+            <p class="text-sm font-semibold">Daily Overview</p>
+            <p class="text-xs muted mt-1">Track your daily nutrition</p>
+        </div>
+    </header>
+    <!-- CALORIES -->
+    <section class="card p-6 md:p-8 mb-6">
+        <div class="flex flex-wrap justify-between items-center gap-4 mb-6">
+            <div>
+                <p class="muted text-sm mb-2">
+                    Total Calories Consumed </p>
+                <div class="flex items-baseline gap-2">
+
+                    <span id="total_calories_display" class="text-4xl md:text-5xl font-extrabold">
+                        0
+                    </span> <span class="muted text-sm">kcal</span>
+                </div>
+            </div>
+            <div class="text-right">
+
+                <span class="text-xs bg-lime-400/10 text-lime-400 px-3 py-2 rounded-full">
+                    Daily goal: 2000 kcal
+                </span>
+                <p class="muted text-xs mt-3">
+                    <span id="calorie-remaining">2000</span> kcal remaining </p>
+            </div>
+        </div>
+        <div class="progress-track">
+            <div id="calorie-progress" class="progress-fill" style="width:0%"></div>
+        </div>
+        <div class="flex justify-between mt-3 text-xs muted">
+            <span>0 kcal</span> <span id="calorie-percent">0% completed</span> <span>2000 kcal</span>
+        </div>
+    </section>
+    <!-- MACRO CARDS -->
+    <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
+        <div class="card stat-card p-5">
+            <div class="flex justify-between items-center">
+                <p class="muted text-sm">Carbohydrates</p>
+                <span class="macro-dot" style="background:#38bdf8"></span>
+            </div>
+            <h3 id="total_carbs" class="text-3xl font-bold mt-4">0</h3>
+            <p class="muted text-xs mt-2">Grams consumed</p>
+        </div>
+        <div class="card stat-card p-5">
+            <div class="flex justify-between items-center">
+                <p class="muted text-sm">Protein</p>
+                <span class="macro-dot" style="background:#a3e635"></span>
+            </div>
+            <h3 id="total_protein" class="text-3xl font-bold mt-4">0</h3>
+            <p class="muted text-xs mt-2">Grams consumed</p>
+        </div>
+        <div class="card stat-card p-5">
+            <div class="flex justify-between items-center">
+                <p class="muted text-sm">Fats</p>
+                <span class="macro-dot" style="background:#fb923c"></span>
+            </div>
+            <h3 id="total_fats" class="text-3xl font-bold mt-4">0</h3>
+            <p class="muted text-xs mt-2">Grams consumed</p>
+        </div>
+    </section>
+    <section class="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:items-start">
+        <!-- FOOD TABLE -->
+        <div class="card p-5 md:p-6 lg:col-span-2">
+            <div class="flex flex-wrap justify-between items-center gap-3 mb-6">
+                <div>
+                    <h3 class="font-bold text-lg">Consumed Foods</h3>
+                    <p class="muted text-xs mt-1">Your nutrition history</p>
+                </div>
+                <span class="text-xs text-lime-400 bg-lime-400/10 px-3 py-2 rounded-full">
+                    Food Log
+                </span>
+            </div>
+            <!-- CUSTOM FOOD FORM -->
+            <form method="post" action="" class="food-form">
+                {% csrf_token %}
+                <div class="flex flex-col sm:flex-row gap-4 items-end">
+                    <div class="flex-1 w-full">
+                        <label for="food-trigger"> SELECT FOOD ITEM </label>
+                        <input type="hidden" name="food" id="food" value="{% if foods %}{{ foods.0.id }}{% endif %}">
+                        <div class="food-dropdown" id="foodDropdown">
+                            <button type="button" id="food-trigger" class="dropdown-trigger" aria-haspopup="listbox" aria-expanded="false">
+
+                                <span id="selectedFoodLabel">
+                                    {% if foods %}
+                                        {{ foods.0.name }}
+                                    {% else %}
+                                        No food available
+                                    {% endif %}
+                                </span>
+                                <svg class="arrow" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="m6 9 6 6 6-6"/>
+                                </svg>
+                            </button>
+                            <div class="dropdown-menu" id="foodMenu" role="listbox" aria-label="Food items">
+                                {% for food in foods %}
+
+                                    <button type="button" class="dropdown-option {% if forloop.first %}selected{% endif %}" data-value="{{ food.id }}" data-label="{{ food.name }}" role="option" aria-selected="{% if forloop.first %}true{% else %}false{% endif %}">
+                                        <span>{{ food.name }}</span> <span class="check">✓</span>
+                                    </button>
+
+                                {% empty %}
+
+                                    <div class="dropdown-empty">
+                                        No food items available.
+                                    </div>
+
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                    <button type="submit" class="add-btn" {% if not foods %}disabled{% endif %}>
+                        + Add Food
+                    </button>
+                </div>
+            </form>
+            <!-- FOOD TABLE -->
+            <div class="overflow-x-auto">
+                <table id="table" class="food-table w-full text-left whitespace-nowrap">
+                    <thead>
+                    <tr>
+                        <th>Food Item</th>
+                        <th>Carbs</th>
+                        <th>Protein</th>
+                        <th>Fats</th>
+                        <th>Calories</th>
+                        <th>Action</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for item in consumed_foods %}
+
+                        <tr>
+                            <td class="font-semibold">
+                                {{ item.food_consume.name }}
+                            </td>
+                            <td>{{ item.food_consume.carbs }}</td>
+                            <td>{{ item.food_consume.proteins }}</td>
+                            <td>{{ item.food_consume.fats }}</td>
+                            <td class="font-semibold accent">
+                                {{ item.food_consume.calories }}
+                            </td>
+                            <td>
+                                <a class="delete-link" href="{% url 'main:delete_consume' item.id %}"> Delete </a>
+                            </td>
+                        </tr>
+
+                    {% endfor %}
+
+
+                    <tr class="total-row">
+                        <td class="text-white">Total</td>
+                        <td id="total_carbs_table">0</td>
+                        <td id="total_protein_table">0</td>
+                        <td id="total_fats_table">0</td>
+                        <td id="total_calories_table" class="accent">0</td>
+                        <td></td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="card p-5 md:p-6 self-start h-fit w-full">
+            <h3 class="font-bold text-lg">
+                Macro Distribution </h3>
+            <p class="muted text-xs mt-1 mb-6">
+                Your macronutrient breakdown </p>
+            <div class="chart-container">
+                <canvas id="myChart"></canvas>
+            </div>
+            <div class="space-y-4 mt-8">
+                <div class="flex justify-between items-center text-sm">
+                    <div class="flex items-center gap-2">
+                        <span class="macro-dot" style="background:#38bdf8"></span> <span class="muted">Carbs</span>
+                    </div>
+                    <span id="carbs-percent" class="font-semibold">0%</span>
+                </div>
+                <div class="flex justify-between items-center text-sm">
+                    <div class="flex items-center gap-2">
+                        <span class="macro-dot" style="background:#a3e635"></span> <span class="muted">Protein</span>
+                    </div>
+                    <span id="protein-percent" class="font-semibold">0%</span>
+                </div>
+                <div class="flex justify-between items-center text-sm">
+                    <div class="flex items-center gap-2">
+                        <span class="macro-dot" style="background:#fb923c"></span> <span class="muted">Fats</span>
+                    </div>
+                    <span id="fats-percent" class="font-semibold">0%</span>
+                </div>
+            </div>
+        </div>
+    </section>
+    <!-- FOOTER -->
+    <footer class="text-center muted text-xs py-8 mt-6">
+        MICRO TRACKER · built By
+        <a class="font-bold text text-white" href="https://github.com/navidkmp">NdevX</a> with Python & Django
+    </footer>
+</div>
+<script src="{% static 'styles/js/script.js' %}"></script>
+</body>
+</html>
