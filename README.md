@@ -91,6 +91,10 @@ STATICFILES_DIRS = [
 ]
 ```
 
+## Pay Attention!!!!!!
+
+you have to create a superuser after migrate!
+
 ## Purpose
 
 Micro Tracker is a learning project focused on building a practical web application with Django, organizing frontend assets, and working with dynamic dashboard components.
